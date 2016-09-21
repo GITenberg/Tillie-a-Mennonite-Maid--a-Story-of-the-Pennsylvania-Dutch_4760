@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: gJHiUvgxi40czmXZjIupEKKxnF9ayg211+p12fYKmlq6wjouRV+Vai3WG00uhcUA5hcB/CvM8ZOT+bcPsmPEg4JMQPvBJGsGSV90PIEaADgseayYB3OfZIagyL4kd8Dgkyl6qI5mnMDCJ/rJiE3b5jrDiy5QkNDSH4jmlqLS7ew9j7gCQIh9bOIlZGcR5OI90wY48pZRu2jja7z4v0L/hHDFgbDnhgAW0H+dM3sosgs8eXGZ7RXNhuqeKvb5ConCcDswMZhRxBOwWF0PvNcR3WSax+e19Nl7/RKHCdGKamErjft05WghqyDuR45Nphsl9AnV13EVdRh5Ha6OQlG2R/023nXmVNspoBYjnMNCS7NC53wY9ixWx8PFQFDDqNtrL4w05U7HIjFfv/urDTidTCoSb2yYt3qqE+8HkNmQz7YghNeONA/XoO/86IaP1ZO8WaCmR4xuruRoABZqsGdqKerv/r3Iqnmant/zU2QCzPB8CpuioVKf6Kc51KZgyZha3zHSIeD/LF/A7sGB7hqapRVtFw5jDtBQ4E+YbXADTYlFpBE04KUMeJ/RFeN7L10CUcZJvw4rMUnx2QPFxNmYogEI6bbbB/TgKU1UrNI7kzMdVxdbJ+STh+4bcr1Hd8u2HAZ26Y//4+bZoS7qTTk5yEE7dYeU1rAjLRZG1HjisNk=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Tillie-a-Mennonite-Maid--a-Story-of-the-Pennsylvania-Dutch_4760
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
